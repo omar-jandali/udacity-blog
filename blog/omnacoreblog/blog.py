@@ -153,7 +153,6 @@ class Post(db.Model):
 
     def render(self, user, permalink):
         self._render_text = self.content.replace('\n', '<br>')
-        self.liked_count = len(self.liked)
         post_author = User.by_id(self.user_id)
         return render_str('post.html', p = self, author = post_author)
 
@@ -274,6 +273,110 @@ class DeletePost(BlogHandler):
         time.sleep(0.5)
         self.redirect('/blog')
 
+class Comment(db.Model):
+    author_id = db.IntegerProperty(required=True)
+    post_id = db.IntegerProperty(required=True)
+    content = db.TextProperty(required=True)
+    created = db.DateTimeProperty(auto_now_add=True)
+
+    @classmethod
+    def by_id(cls, pid):
+        return Comment.get_by_id(pid, parent=blog_key())
+
+    def render(self, user):
+        self._render_text = self.content.replace('\n', '<br>')
+        return render_str("comment.html", c=self, user=user,
+                          author=User.by_id(int(self.author_id)))
+
+# Handle comment creation
+class NewComment(BlogHandler):
+    def post(self):
+        if not self.user:
+            self.redirect('/blog')
+
+        post_id = int(self.request.get('post_id'))
+        content = self.request.get('content')
+
+        if post_id and content:
+            c = Comment(parent=blog_key(), post_id=post_id, content=content,
+                        author_id=self.user.key().id())
+            c.put()
+
+        self.redirect('/blog/%s' % str(post_id))
+
+# Handle comment edit
+class EditComment(BlogHandler):
+    def get(self):
+        if self.user:
+            comment_id = int(self.request.get('comment_id'))
+            comment = Comment.by_id(comment_id)
+
+            if not comment:
+                self.error(404)
+                return
+
+            if comment.author_id != self.user.key().id():
+                self.redirect("/blog")
+
+            self.render("edit-comment.html", comment=comment)
+        else:
+            self.redirect("/login")
+
+    def post(self):
+        if not self.user:
+            self.redirect('/blog')
+
+        comment_id = int(self.request.get('comment_id'))
+        comment = Comment.by_id(comment_id)
+
+        if comment.author_id != self.user.key().id():
+                self.redirect("/blog")
+
+        content = self.request.get('content')
+
+        if content:
+            comment.content = content
+
+            comment.put()
+            self.redirect('/blog/%s' % str(comment.post_id))
+        else:
+            error = "content, please!"
+            self.render("edit-comment.html", comment=comment,
+                        error=error)
+
+# Handle comment deletion
+class DeleteComment(BlogHandler):
+    def get(self):
+        if self.user:
+            comment_id = int(self.request.get('comment_id'))
+            comment = Comment.by_id(comment_id)
+
+            if not comment:
+                self.error(404)
+                return
+
+            if comment.author_id != self.user.key().id():
+                self.redirect("/blog")
+
+            self.render("delete-comment.html", comment=comment)
+        else:
+            self.redirect("/login")
+
+    def post(self):
+        if not self.user:
+            self.redirect('/blog')
+
+        comment_id = int(self.request.get('comment_id'))
+        comment = Comment.by_id(comment_id)
+
+        if comment.author_id != self.user.key().id():
+                self.redirect("/blog")
+
+        comment.delete()
+        time.sleep(0.5)
+        self.redirect('/blog/%s' % str(comment.post_id))
+
+
 class Signup(BlogHandler):
     def get(self):
         self.render("signup-form.html")
@@ -349,13 +452,15 @@ class Logout(BlogHandler):
         self.logout()
         self.redirect('/blog')
 
-
 app = webapp2.WSGIApplication([('/', MainPage),
                                ('/blog/?', BlogFront),
                                ('/blog/([0-9]+)', PostPage),
                                ('/blog/newpost', NewPost),
                                ('/blog/editpost', EditPost),
+                               ('/blog/newcomment', NewComment),
                                ('/blog/deletepost', DeletePost),
+                               ('/blog/editcomment', EditComment),
+                               ('/blog/deletecomment', DeleteComment),
                                ('/signup', Register),
                                ('/login', Login),
                                ('/logout', Logout),
