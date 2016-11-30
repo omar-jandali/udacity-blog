@@ -153,7 +153,7 @@ class Post(db.Model):
 
     def render(self, user, permalink):
         self._render_text = self.content.replace('\n', '<br>')
-        post_author = User.by_id(self.user_id)
+        post_author = User.by_id(self.author_id)
         return render_str('post.html', p = self, author = post_author)
 
 # Render the blog front page
