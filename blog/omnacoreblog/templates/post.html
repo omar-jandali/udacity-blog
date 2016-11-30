@@ -5,9 +5,18 @@
     </div>
 
     <div class="post-date">
-      {{p.created.strftime("%b %d, %Y")}}
-    </div>
-  </div>
+          {% if user %}
+            {% if permalink %}
+              <a href="/blog/{{p.key().id()}}">Comment</a> -
+            {% endif %}
+            {% if user.key().id() == p.author_id %}
+              <a href="/blog/editpost?post_id={{p.key().id()}}">Edit</a>
+              <a href="/blog/deletepost?post_id={{p.key().id()}}">Delete</a>
+            {% endif %}
+          {% endif %}
+          {{p.created.strftime("%b %d, %Y")}} by {{ author.name }}
+        </div>
+      </div>
 
   <div class="post-content">
     {{p._render_text | safe}}
