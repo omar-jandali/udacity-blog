@@ -154,9 +154,8 @@ class Post(db.Model):
     def render(self, user, permalink):
         self._render_text = self.content.replace('\n', '<br>')
         self.liked_count = len(self.liked)
-        return render_str("post.html", p=self, user=user,
-                          author=User.by_id(int(self.author_id)),
-                          permalink=permalink)
+        post_author = User.by_id(self.user_id)
+        return render_str('post.html', p = self, author = post_author)
 
 # Render the blog front page
 class BlogFront(BlogHandler):
