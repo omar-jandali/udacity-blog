@@ -151,7 +151,7 @@ class Post(db.Model):
     def by_id(cls, pid):
         return Post.get_by_id(pid, parent=blog_key())
 
-    def render(self, user, permalink):
+    def render(self):
         self._render_text = self.content.replace('\n', '<br>')
         post_author = User.by_id(self.author_id)
         return render_str('post.html', p = self, author = post_author)
@@ -453,7 +453,7 @@ class Logout(BlogHandler):
         self.redirect('/blog')
 
 app = webapp2.WSGIApplication([('/', MainPage),
-                               ('/blog/?', BlogFront),
+                               ('/blog/front', BlogFront),
                                ('/blog/([0-9]+)', PostPage),
                                ('/blog/newpost', NewPost),
                                ('/blog/editpost', EditPost),
