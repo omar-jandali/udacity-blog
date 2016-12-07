@@ -1,4 +1,4 @@
-Udacity Project: the multi-user blog
+Udacity Project: the multi-user blog (Omar Jandali)
 
 THis is the udacity project in which i created a blog that is made to handle multiple users.
 

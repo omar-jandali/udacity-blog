@@ -1,31 +1,59 @@
-
 <!DOCTYPE html>
-<html>
-<head>
-  <link type="text/css" rel="stylesheet" href="/static/main.css" />
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <title>Udacity Blog</title>
-</head>
+    <title>{% block title %}{% endblock %}</title>
+    <link href="/static/css/bootstrap.min.css" type="text/css" rel="stylesheet">
+    <link href="/static/css/normalize.css" type="text/css" rel="stylesheet">
+    <link href="/static/css/style.css" type="text/css" rel="stylesheet">
+    <script src="/static/js/jquery-3.1.0.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+  </head>
+  <body>
 
-<body>
-  <a href="/blog" class="main-title">
-    Udacity Blog
-  </a>
+    <header class="container">
+        <nav class="navbar navbar-default" style="background-color: #353844">
+          <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              {% if loggedIn %}
+              <a class="navbar-brand" style="color: #F0424B" href="/">
+                Welcome, {{loggedIn.name}}</a>
+              {% else %}
+              <a class="navbar-brand" style="color: #F0424B" href="/">
+                Home</a>
+              {% endif %}
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+              <ul class="nav navbar-nav navbar-right">
+              <!-- add in if else statement when have a logged in user -->
+              {% if loggedIn %}
+                <li><a style="color: #72B1B1" href="/newpost">New Post</a></li>
+                <li><a style="color: #72B1B1" href="/logout">Log Out</a></li>
+              {% else %}
+                <li><a style="color: #72B1B1" href="/login">Log In</a></li>
+                <li><a style="color: #72B1B1" href="/signup">Sign Up</a></li>
+              {% endif %}
+              </ul>
+            </div><!-- /.navbar-collapse -->
+          </div><!-- /.container-fluid -->
+        </nav>
+    </header>
 
-  <div class="login-area">
-    {% if user %}
-      {{user.name}} <a class="login-link" href="/logout">logout</a><br>
-      <a href="/blog/newpost">Create Post</a>
-    {% else %}
-      <a class="login-link" href="/login">login</a> OR
-      <a class="login-link" href="/signup">signup</a>
-    {% endif %}
-  </div>
+    <section class="main">
+      {% block body %}
+      {% endblock %}
+    </section>
 
-  <div id="content">
-  {% block content %}
-  {% endblock %}
-  </div>
-</body>
-
+  </body>
 </html>

@@ -1,24 +1,23 @@
 <div class="post">
-  <div class="post-heading">
-    <div class="post-title">
-      {{p.title}}
+  <div class="likes">
+    <p>
+      {% if loggedIn.name == p.author %}
+        <span class="glyphicon glyphicon-menu-up"></span>
+        {{p.votes}}
+        <a href="/edit?id={{p.key().id()}}" class="btn btn-success">Edit</a>
+        <a href="/delete?id={{p.key().id()}}" class="btn btn-danger">Delete</a>
+      {% else %}
+        <a class="glyphicon glyphicon-menu-up" href="/upvote?id={{p.key().id()}}"></a>
+        {{p.votes}}
+        <a href="/comment/{{p.key().id()}}" class="btn btn-primary">Comment</a>
+      {% endif %}
+    </p>
+    <h3>{{p.subject}}</h3>
+    <h5>Submitted by {{p.author}}</h5>
+    <h5>{{p.created.strftime("%b %d, %Y")}}</h5>
+    <div class="post-content">
+      {{p._render_text | safe}}
     </div>
-
-    <div class="post-date">
-          {% if user %}
-            {% if permalink %}
-              <a href="/blog/{{p.key().id()}}">Comment</a> -
-            {% endif %}
-            {% if user.key().id() == p.author_id %}
-              <a href="/blog/editpost?post_id={{p.key().id()}}">Edit</a>
-              <a href="/blog/deletepost?post_id={{p.key().id()}}">Delete</a>
-            {% endif %}
-          {% endif %}
-          {{p.created.strftime("%b %d, %Y")}} by {{ author.name }}
-        </div>
-      </div>
-
-  <div class="post-content">
-    {{p._render_text | safe}}
   </div>
 </div>
+
