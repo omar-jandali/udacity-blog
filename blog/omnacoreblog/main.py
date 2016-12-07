@@ -151,6 +151,12 @@ class MainPageHandler(BaseHandler):
         else:
             self.redirect('/signup')
 
+def valid_post(self, post_id):
+    if post_id == self.request.get('id'):
+        return post_id
+    else:
+        self.redirect('/')
+
 class NewPostHandler(BaseHandler):
     def get(self):
         if self.user:
@@ -187,7 +193,9 @@ class NewPostHandler(BaseHandler):
                             loggedIn=self.user)
 
 class NewCommentHandler(BaseHandler):
+    @validate_post
     def get(self, post_id):
+        post_id = self.request.get('id')
         key = db.Key.from_path('Post', int(post_id), parent=blog_key())
         post = db.get(key)
         if not self.user:
@@ -203,6 +211,7 @@ class NewCommentHandler(BaseHandler):
                         comments=comments,
                         loggedIn=self.user)
 
+    @validate_post
     def post(self, post_id):
         if not self.user:
             self.redirect("/login")
@@ -221,7 +230,8 @@ class NewCommentHandler(BaseHandler):
             self.render('front.html', posts=posts, loggedIn=self.user)
 
 class EditPostHandler(BaseHandler):
-    def get(self):
+    @validate_post
+    def get(self, post_id):
         if not self.user:
             self.redirect("/login")
         else:
@@ -235,7 +245,8 @@ class EditPostHandler(BaseHandler):
                 msg = "You are not authorized to edit this post."
                 self.render('message.html', msg=msg)
 
-    def post(self):
+    @validate_post
+    def post(self, post_id):
         post_id = self.request.get('id')
         key = db.Key.from_path('Post', int(post_id), parent=blog_key())
         p = db.get(key)
